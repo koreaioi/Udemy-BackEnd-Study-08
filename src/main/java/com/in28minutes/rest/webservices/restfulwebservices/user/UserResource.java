@@ -1,6 +1,8 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,9 +34,14 @@ public class UserResource {
         return user;
     }
 
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable int id) {
+        userDaoService.DeleteById(id);
+    }
+
     //POST /users
     @PostMapping("/users") // <- 현재 요청에 해당하는 URL
-    public ResponseEntity<User> createUser(@RequestBody User user){ //User Bean과 매핑됨
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user){ //User Bean과 매핑됨
         User savedUser =userDaoService.save(user);
         // /users/4 -> /users/{id} -> /users/{user.getId}
         // ServletUriComponentsBuilder.fromCurrentRequest() -> 현재 요청에 해당하는 URL을 반환 여기서는 /users

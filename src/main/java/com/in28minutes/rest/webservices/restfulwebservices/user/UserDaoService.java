@@ -15,9 +15,9 @@ public class UserDaoService {
     private static int usersCount = 0;
 
     static{
-        users.add(new User(++usersCount, "Adam", LocalDate.now().minusYears(30)));
-        users.add(new User(++usersCount, "Eve", LocalDate.now().minusYears(25)));
-        users.add(new User(++usersCount, "Jim", LocalDate.now().minusYears(20)));
+        users.add(new User(++usersCount, "JIMIN", LocalDate.now().minusYears(30)));
+        users.add(new User(++usersCount, "WOOSEOK", LocalDate.now().minusYears(25)));
+        users.add(new User(++usersCount, "MINSEO", LocalDate.now().minusYears(20)));
     }
 
     public List<User> findALl(){
@@ -43,5 +43,10 @@ public class UserDaoService {
         return users.stream().filter(predicate).findFirst().orElse(null);
 
         //orElse - 값이 존재하면 해당 값 반환, 없으면 사용자 정의 값 반환
+    }
+
+    public void DeleteById(int id) {
+        Predicate<? super User> predicate = user -> user.getId().equals(id);
+        users.removeIf(predicate);
     }
 }
