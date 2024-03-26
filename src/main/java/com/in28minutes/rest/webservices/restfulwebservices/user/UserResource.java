@@ -1,8 +1,11 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -25,13 +28,28 @@ public class UserResource {
     }
 
     //GET /users/1
-    @GetMapping("/users/{id}")
-    public User retrieveOneUsers(@PathVariable Integer id){
+/*    @GetMapping("/users/{id}")
+    public User retrieveUsers(@PathVariable Integer id){
         User user = userDaoService.findOne(id);
 
         if(user==null)
             throw new UserNotFoundException("id: " + id);
         return user;
+    }*/
+
+    @GetMapping("/users/{id}")
+    public EntityModel<User> retrieveUsers(@PathVariable Integer id){
+        User user = userDaoService.findOne(id);
+
+        if(user==null)
+            throw new UserNotFoundException("id: " + id);
+
+        EntityModel<User> entityModel = EntityModel.of(user); //user에 대한 엔티티모델 생성
+
+        WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveALlUsers());
+        entityModel.add(link.withRel("all-users"));
+
+        return entityModel;
     }
 
     @DeleteMapping("/users/{id}")
