@@ -1,13 +1,16 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity(name = "user_details")
 public class User {
@@ -17,12 +20,16 @@ public class User {
     private Integer id;
 
     @Size(min=2, message = "Name Should have at least 2 characters")
-    @JsonProperty("user_name")
+//    @JsonProperty("user_name")
     private String name;
 
     @Past(message = "Birth Date should be in the past")
-    @JsonProperty("birth_date")
+//    @JsonProperty("birth_date")
     private LocalDate birthDate;
+
+    @OneToMany(mappedBy = "user") //Post클래스 필드인 user와 매핑한다.
+    @JsonIgnore //User Bean에 대해서 게시물(posts)을 응답에포함시키는것이 아므로 Jsonignore사용
+    private List<Post> posts;
 
     public User(Integer id, String name, LocalDate birthDate) {
         this.id = id;
