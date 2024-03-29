@@ -1,5 +1,6 @@
 package com.in28minutes.rest.webservices.restfulwebservices.user;
 
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.PostRepository;
 import com.in28minutes.rest.webservices.restfulwebservices.jpa.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.EntityModel;
@@ -18,12 +19,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class UserJpaResource {
 
-    private UserDaoService userDaoService;
     private UserRepository repository;
+    private PostRepository postRepository;
 
-    public UserJpaResource(UserDaoService userDaoService, UserRepository repository) {
-        this.userDaoService = userDaoService;
+    public UserJpaResource(UserRepository repository, PostRepository postRepository) {
         this.repository = repository;
+        this.postRepository = postRepository;
     }
 
     //GET /users - 모드 사용자 조회 요청
@@ -61,6 +62,36 @@ public class UserJpaResource {
     @DeleteMapping("/jpa/users/{id}")
     public void deleteUser(@PathVariable int id) {
         repository.deleteById(id);
+    }
+
+    @GetMapping("/jpa/users/{id}/posts")
+    public List<Post> retrievePostsForUser(@PathVariable int id) {
+        Optional<User> user = repository.findById(id);
+
+        if(user.isEmpty())
+            throw new UserNotFoundException("해당 아이디는 없습니다. id: " + id);
+
+        return user.get().getPosts();
+    }
+
+    @PostMapping("/jpa/users/{id}/posts")
+    public ResponseEntity<Object> createPostForUser(@PathVariable int id, @Valid @RequestBody Post post) {
+        Optional<User> user = repository.findById(id);
+
+        if(user.isEmpty())
+            throw new UserNotFoundException("id : " + id);
+
+        post.setUser(user.get());
+        // descripiotn은 Talend API Tester에서 보낸다. ex "description" : "I want to Learn Spring"
+        Post savedPost = postRepository.save(post);
+
+        // 게시물을 저장했으니 게시물에 대한 URL 만들기
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}") // /users에 /{id}를 추가
+                .buildAndExpand(savedPost.getId()) // {id}에 들어갈 값은 방금 저장한 사용자의 id
+                .toUri(); //URI로 변환
+
+        return ResponseEntity.created(location).build();
     }
 
     //POST /users

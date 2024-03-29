@@ -2,6 +2,7 @@ package com.in28minutes.rest.webservices.restfulwebservices.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Post {
@@ -11,13 +12,12 @@ public class Post {
     @GeneratedValue
     private Integer id;
 
+    @Size(min=10) //게시물 설명 최소 길이 10
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
-
-
 
     public Post(Integer id, String description) {
         this.id = id;
@@ -43,6 +43,14 @@ public class Post {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
